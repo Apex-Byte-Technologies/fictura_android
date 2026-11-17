@@ -1,0 +1,82 @@
+{
+  "about": "user.seed after identify(userId): sha256(utf8(userId)) read as one big-endian integer, mod 100. Anonymous users get floor(random*100) once per install (src/placements/state.ts:40-42), or user_context.seed_hint when the server sends 0..99 and no user is identified (src/placements/runtime.ts:205-207).",
+  "source": [
+    "src/placements/sha256.ts:99-104",
+    "src/placements/state.ts:182-187"
+  ],
+  "generated_by": "contract/generate.mjs",
+  "cases": [
+    {
+      "input": {
+        "user_id": "user_1"
+      },
+      "expected": {
+        "sha256_hex": "79b0aa0042b3c05617c378046a6553ec2cd81e9995959a6012f9b497a18ec82b",
+        "seed": 83
+      }
+    },
+    {
+      "input": {
+        "user_id": "acct_42"
+      },
+      "expected": {
+        "sha256_hex": "592f2119697cff2f2aacf33a931e1ded4cc882968b85ecff42fe1bafd3068b60",
+        "seed": 36
+      }
+    },
+    {
+      "input": {
+        "user_id": "alice@example.com"
+      },
+      "expected": {
+        "sha256_hex": "ff8d9819fc0e12bf0d24892e45987e249a28dce836a85cad60e28eaaa8c6d976",
+        "seed": 46
+      }
+    },
+    {
+      "input": {
+        "user_id": "00000000-0000-0000-0000-000000000000"
+      },
+      "expected": {
+        "sha256_hex": "12b9377cbe7e5c94e8a70d9d23929523d14afa954793130f8a3959c7b849aca8",
+        "seed": 96
+      }
+    },
+    {
+      "input": {
+        "user_id": "Zoë"
+      },
+      "expected": {
+        "sha256_hex": "c6a12698582fc1104ea24107a2d7268145ff06ef859707729d01fd060897f067",
+        "seed": 7
+      }
+    },
+    {
+      "input": {
+        "user_id": "日本語ユーザー"
+      },
+      "expected": {
+        "sha256_hex": "44b7bee1a7c317b1b346972e5b9044f8ebded4868505138fe4329f9841523727",
+        "seed": 63
+      }
+    },
+    {
+      "input": {
+        "user_id": "😀"
+      },
+      "expected": {
+        "sha256_hex": "f0443a342c5ef54783a111b51ba56c938e474c32324d90c3a60c9c8e3a37e2d9",
+        "seed": 81
+      }
+    },
+    {
+      "input": {
+        "user_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "expected": {
+        "sha256_hex": "2816597888e4a0d3a36b82b83316ab32680eb8f00f8cd3b904d681246d285a0e",
+        "seed": 38
+      }
+    }
+  ]
+}

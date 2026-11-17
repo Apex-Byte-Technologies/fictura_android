@@ -1,0 +1,548 @@
+{
+  "about": "Per-event sampling. bucket = big-endian uint32 of the first 4 bytes of sha256(utf8(device_id + ':' + event_name)) / 2^32; keep = rate >= 1 || (rate > 0 && (device_id == null || bucket < rate)).",
+  "source": [
+    "src/sampling.ts:20-45",
+    "src/placements/sha256.ts:39",
+    "src/core.ts:717-718"
+  ],
+  "generated_by": "contract/generate.mjs",
+  "cases": [
+    {
+      "input": {
+        "device_id": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab",
+        "event_name": "element_tapped"
+      },
+      "expected": {
+        "hash_input": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab:element_tapped",
+        "sha256_hex": "fe9793849648dab3cc8e2971c36bbcdae6e6629da806d3a91162b08c60a2f812",
+        "first4_hex": "fe979384",
+        "bucket": 0.9945003697648644,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": false,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab",
+        "event_name": "screen_viewed"
+      },
+      "expected": {
+        "hash_input": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab:screen_viewed",
+        "sha256_hex": "acf335b81e4810ad657ca83b78e402106b17bafc555943188859e6800ee0ea74",
+        "first4_hex": "acf335b8",
+        "bucket": 0.675586087629199,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab",
+        "event_name": "app_open"
+      },
+      "expected": {
+        "hash_input": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab:app_open",
+        "sha256_hex": "0d6a535caf5bed422a95793380ffbf4505c7b9a241d3c7bde460e1e8d5b63fb9",
+        "first4_hex": "0d6a535c",
+        "bucket": 0.052403650246560574,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": true,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab",
+        "event_name": "purchase_completed"
+      },
+      "expected": {
+        "hash_input": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab:purchase_completed",
+        "sha256_hex": "ebffffa49e465e7fa4b6d0548b42a1c20774e42ce0185822cce6463200d2b72f",
+        "first4_hex": "ebffffa4",
+        "bucket": 0.9218749785795808,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": false,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab",
+        "event_name": "café_ordered"
+      },
+      "expected": {
+        "hash_input": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab:café_ordered",
+        "sha256_hex": "23ddb80485fe498df5cf285f249ca581f385e583812fddeff6873d3335c7dc4f",
+        "first4_hex": "23ddb804",
+        "bucket": 0.14010191056877375,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab",
+        "event_name": "🔥_streak"
+      },
+      "expected": {
+        "hash_input": "ios-6f1c2a4e-9b1d-4c3e-8f7a-1234567890ab:🔥_streak",
+        "sha256_hex": "ed0d6cfc0a689e10f8e44908cbac617964af04468099efb06dea20e39cf67f19",
+        "first4_hex": "ed0d6cfc",
+        "bucket": 0.9259861102327704,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": false,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "and-9774d56d682e549c",
+        "event_name": "element_tapped"
+      },
+      "expected": {
+        "hash_input": "and-9774d56d682e549c:element_tapped",
+        "sha256_hex": "769482447143e5c6efcccfd994e6bd1e14bea3bd2fee898c6c81aff2f689b0c7",
+        "first4_hex": "76948244",
+        "bucket": 0.46320356521755457,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "and-9774d56d682e549c",
+        "event_name": "screen_viewed"
+      },
+      "expected": {
+        "hash_input": "and-9774d56d682e549c:screen_viewed",
+        "sha256_hex": "88736e64c811d1c0c9d3376152e95b06e4bec4c31210927e7e32888ecdfb4e64",
+        "first4_hex": "88736e64",
+        "bucket": 0.5330113405361772,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "and-9774d56d682e549c",
+        "event_name": "app_open"
+      },
+      "expected": {
+        "hash_input": "and-9774d56d682e549c:app_open",
+        "sha256_hex": "7f4f98585d10ef5bd4136548277ad68d29bfa4a0dc9930498c61d907d9272b3c",
+        "first4_hex": "7f4f9858",
+        "bucket": 0.49730827473104,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "and-9774d56d682e549c",
+        "event_name": "purchase_completed"
+      },
+      "expected": {
+        "hash_input": "and-9774d56d682e549c:purchase_completed",
+        "sha256_hex": "e0c23f016b24bca504f172124a48eeecad2e46445e8f766cdcabeb8be3f1e76f",
+        "first4_hex": "e0c23f01",
+        "bucket": 0.8779639604035765,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "and-9774d56d682e549c",
+        "event_name": "café_ordered"
+      },
+      "expected": {
+        "hash_input": "and-9774d56d682e549c:café_ordered",
+        "sha256_hex": "7ba735b2c11e10a28af23f7e58a524b7a56d573a02b993ba5d8277661acad48e",
+        "first4_hex": "7ba735b2",
+        "bucket": 0.48302016826346517,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "and-9774d56d682e549c",
+        "event_name": "🔥_streak"
+      },
+      "expected": {
+        "hash_input": "and-9774d56d682e549c:🔥_streak",
+        "sha256_hex": "677ba8d40828beefb1afea62d380b18fdcdefdfa3e74f39823ae15b79b20689c",
+        "first4_hex": "677ba8d4",
+        "bucket": 0.4042306439951062,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "device-1",
+        "event_name": "element_tapped"
+      },
+      "expected": {
+        "hash_input": "device-1:element_tapped",
+        "sha256_hex": "7b11b2a23d05af57cb2b65287e902f0767f3952b064c8429241359622a96a6cb",
+        "first4_hex": "7b11b2a2",
+        "bucket": 0.4807387967593968,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "device-1",
+        "event_name": "screen_viewed"
+      },
+      "expected": {
+        "hash_input": "device-1:screen_viewed",
+        "sha256_hex": "e5f0686ab67d4606412586c71f7402da420d55ea6ac4de1f10182698f15dc2c0",
+        "first4_hex": "e5f0686a",
+        "bucket": 0.8981995829381049,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "device-1",
+        "event_name": "app_open"
+      },
+      "expected": {
+        "hash_input": "device-1:app_open",
+        "sha256_hex": "f962f0c7f114d2ab81ad809077bcdbd10c67316a229c63cdb8d7bca337f3a732",
+        "first4_hex": "f962f0c7",
+        "bucket": 0.9741659627761692,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": false,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "device-1",
+        "event_name": "purchase_completed"
+      },
+      "expected": {
+        "hash_input": "device-1:purchase_completed",
+        "sha256_hex": "dda927cc1444cc2abb6b58b36e07c26d572d17ff2a5a94784db82396b13d1bca",
+        "first4_hex": "dda927cc",
+        "bucket": 0.86586235743016,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "device-1",
+        "event_name": "café_ordered"
+      },
+      "expected": {
+        "hash_input": "device-1:café_ordered",
+        "sha256_hex": "6d9aa28839da29425d833089c80028bd2171a3d515de571ae86c9964f44ac49c",
+        "first4_hex": "6d9aa288",
+        "bucket": 0.42814079113304615,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "device-1",
+        "event_name": "🔥_streak"
+      },
+      "expected": {
+        "hash_input": "device-1:🔥_streak",
+        "sha256_hex": "a4eb42e5c0e6d8dd520ff1cb1bfd807eb17f479c9062e2697683bfe8d20af2ff",
+        "first4_hex": "a4eb42e5",
+        "bucket": 0.6442148026544601,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "tmp-00000000-0000-4000-8000-000000000000",
+        "event_name": "element_tapped"
+      },
+      "expected": {
+        "hash_input": "tmp-00000000-0000-4000-8000-000000000000:element_tapped",
+        "sha256_hex": "70b31874bd8f11a79e1fdf1dd29b5b96d5d43310f4206e6d3b599c26216a8858",
+        "first4_hex": "70b31874",
+        "bucket": 0.4402327807620168,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "tmp-00000000-0000-4000-8000-000000000000",
+        "event_name": "screen_viewed"
+      },
+      "expected": {
+        "hash_input": "tmp-00000000-0000-4000-8000-000000000000:screen_viewed",
+        "sha256_hex": "2d2c942dbaf5c30766eb10cbf900d932971f3965e938a4245d9d96e46ec7b7b3",
+        "first4_hex": "2d2c942d",
+        "bucket": 0.17646146868355572,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "tmp-00000000-0000-4000-8000-000000000000",
+        "event_name": "app_open"
+      },
+      "expected": {
+        "hash_input": "tmp-00000000-0000-4000-8000-000000000000:app_open",
+        "sha256_hex": "4abd05287e72fc27f4cee68aa646770a3af384e1cac363b745f05857f2aad01b",
+        "first4_hex": "4abd0528",
+        "bucket": 0.2919467184692621,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "tmp-00000000-0000-4000-8000-000000000000",
+        "event_name": "purchase_completed"
+      },
+      "expected": {
+        "hash_input": "tmp-00000000-0000-4000-8000-000000000000:purchase_completed",
+        "sha256_hex": "887427a3c992c7eeb2f52d8c00aa0e86bcd6c5dd63bf179e00641892d9add2f5",
+        "first4_hex": "887427a3",
+        "bucket": 0.5330223820637912,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "tmp-00000000-0000-4000-8000-000000000000",
+        "event_name": "café_ordered"
+      },
+      "expected": {
+        "hash_input": "tmp-00000000-0000-4000-8000-000000000000:café_ordered",
+        "sha256_hex": "fe512ce399f1cff51c9e30c66e9eab3f815c8d103e81a268357f90ddc5cf318f",
+        "first4_hex": "fe512ce3",
+        "bucket": 0.9934261373709887,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": false,
+          "0.9": false,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": "tmp-00000000-0000-4000-8000-000000000000",
+        "event_name": "🔥_streak"
+      },
+      "expected": {
+        "hash_input": "tmp-00000000-0000-4000-8000-000000000000:🔥_streak",
+        "sha256_hex": "3b5e14e346580946940b44917b7d7635f3954d281f31a8b85651aed0998e4736",
+        "first4_hex": "3b5e14e3",
+        "bucket": 0.23190432111732662,
+        "keep": {
+          "0": false,
+          "1": true,
+          "0.01": false,
+          "0.1": false,
+          "0.5": true,
+          "0.9": true,
+          "0.999": true
+        }
+      }
+    },
+    {
+      "input": {
+        "device_id": null,
+        "event_name": "element_tapped",
+        "rate": 0
+      },
+      "expected": {
+        "keep": false
+      },
+      "note": "device id not known yet: rate 0 still drops, any other rate fails open"
+    },
+    {
+      "input": {
+        "device_id": null,
+        "event_name": "element_tapped",
+        "rate": 0.5
+      },
+      "expected": {
+        "keep": true
+      },
+      "note": "device id not known yet: rate 0 still drops, any other rate fails open"
+    },
+    {
+      "input": {
+        "device_id": null,
+        "event_name": "element_tapped",
+        "rate": 1
+      },
+      "expected": {
+        "keep": true
+      },
+      "note": "device id not known yet: rate 0 still drops, any other rate fails open"
+    }
+  ]
+}

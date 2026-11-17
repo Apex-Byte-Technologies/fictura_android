@@ -118,7 +118,10 @@ class Core(
     private val appVersion: String? = null,
     private val country: () -> String? = { null },
 ) {
-    val work: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor { r -> Thread(r, "fictura-core").apply { isDaemon = true } }
+    @Volatile private var workThread: Thread? = null
+    val work: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor { r ->
+        Thread(r, "fictura-core").apply { isDaemon = true; workThread = this }
+    }
 
     private data class Queued(val name: String, val status: String, val props: JsonMap, val uuid: String, val timestamp: String, val size: Int, val ids: EventIds)
 
@@ -206,7 +209,9 @@ class Core(
         "pending_unset" to Json.of(pendingUnset), "dirty" to Json.Bool(attrDirty), "version" to Json.of(attrVersion))))
 
     /** Runs on the core thread and waits (for tests and the public getters). */
-    fun <T> sync(block: () -> T): T = work.submit<T> { block() }.get()
+    fun <T> sync(block: () -> T): T =
+        // Already on the core thread (the placement runtime shares it): waiting on it would deadlock.
+        if (Thread.currentThread() === workThread) block() else work.submit<T> { block() }.get()
 
     // ── Identity ────────────────────────────────────────────────────────────
 

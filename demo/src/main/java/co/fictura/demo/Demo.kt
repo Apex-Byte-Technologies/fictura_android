@@ -47,7 +47,7 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(40, 80, 40, 40) }
+        val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(40, 320, 40, 40) }
         fun button(label: String, tag: String, action: () -> Unit) = col.addView(Button(this).apply { text = label; contentDescription = tag; setOnClickListener { action() } })
         button("Track photo_saved", "track") { Fictura.track("photo_saved", mapOf("style" to "modern", "count" to 3)); note("tracked") }
         button("Identify android_tester_1", "identify") { Fictura.identify("android_tester_1", mapOf("plan" to "free")); note("identified") }
