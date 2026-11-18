@@ -2,6 +2,18 @@
 
 Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.2.0] - Unreleased
+
+For SDKs that wrap this one, starting with `fictura_flutter`. Apps that call the SDK directly see no change.
+
+### Added
+- `FicturaOptions.wrapper` (`FicturaWrapper(name, version)`): a wrapping SDK names itself. Every request then also carries `x-fictura-wrapper: flutter/0.1.0`, every event `$wrapper` and `$wrapper_version`, and every error `contexts.app.wrapper`. `x-fictura-sdk` stays `android/…`, so the backend keeps reading Java and Kotlin stacks and serving HTML paywalls.
+- `Fictura.Wrapper.captureError(...)`: reports an error raised in the wrapper's own language (a Dart exception) with its own stack text, marked with `contexts.runtime.name`.
+- `Fictura.Wrapper.attach(activity)`: hands over the Activity that was already on screen when `configure` ran. A Flutter app configures from Dart, after its Activity started, so without it the launch had no `app_open`, backgrounding no `app_backgrounded`, and a paywall no Activity to open on.
+
+### Changed
+- An Activity stop the SDK never saw start no longer pushes its started count below zero.
+
 ## [0.1.0] - Unreleased
 
 First release: Fictura for native Android apps.
