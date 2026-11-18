@@ -7,7 +7,13 @@ The Fictura SDK for native Android apps written in Kotlin or Java. It sends the 
 
 ## Install
 
-Until it is on Maven Central, include the module from this repo (`include(":fictura")` with `project(":fictura").projectDir`), or build the AAR with `./gradlew :fictura:assembleRelease`.
+From Maven Central. In your app module's `build.gradle.kts`:
+
+```kotlin
+dependencies {
+    implementation("co.fictura:fictura-android:0.1.0")
+}
+```
 
 ## Start
 
@@ -83,6 +89,15 @@ Fictura.setRevenueCatUserId(Purchases.sharedInstance.appUserID)
 ```bash
 ./gradlew :fictura:testDebugUnitTest
 ./gradlew :demo:installDebug -PficturaKey=gk_... -PficturaApi=http://10.0.2.2:4000
+./gradlew :fictura:publishToMavenLocal   # the files Maven Central gets, into ~/.m2
 ```
+
+## Releasing
+
+1. Set `sdkVersion` in `fictura/build.gradle.kts` and add a `CHANGELOG.md` entry.
+2. After the PR merges, tag main: `git tag v0.1.0 && git push origin v0.1.0`.
+3. The Release workflow uploads to the Central Portal. Check the deployment on https://central.sonatype.com/publishing/deployments and click Publish.
+
+It needs these repository secrets: `MAVEN_CENTRAL_USERNAME` and `MAVEN_CENTRAL_PASSWORD` (a Central Portal user token), `SIGNING_KEY` (ASCII-armored private GPG key), `SIGNING_KEY_ID` (last 8 hex digits) and `SIGNING_KEY_PASSWORD`.
 
 The unit tests run the shared contract vectors generated from the React Native SDK (`fictura/src/test/resources/vectors`).

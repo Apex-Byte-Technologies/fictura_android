@@ -7,6 +7,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/).
 First release: Fictura for native Android apps.
 
 ### Added
+- Published to Maven Central as `co.fictura:fictura-android`, with sources, javadoc and signed files. A `v*` tag uploads a release.
 - `Fictura.configure`, events, screens, sessions, identity, attributes, super properties and opt-out, in the React Native SDK's batch format (`x-fictura-sdk: android/0.1.0`, `$lib: fictura-android`). The device id is `and-<ANDROID_ID>`, as in the React Native SDK.
 - Automatic `first_open`, `app_open`, `app_backgrounded`, `app_updated`, Activity screens and `element_tapped` for clickable views.
 - Remote config with kill switches and sampling; placements, campaigns, audiences, holdouts and A/B assignment confirmed with the server (checked against the shared contract vectors).
