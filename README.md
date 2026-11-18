@@ -84,6 +84,10 @@ Fictura.setRevenueCatUserId(Purchases.sharedInstance.appUserID)
 - Cancel survey, performance traces, and handled-error deobfuscation with R8 mapping files.
 - Onboarding flows (deprecated) and React Native-only paywall templates (schemas 1–4).
 
+## Flutter
+
+Flutter apps use [`fictura_flutter`](https://github.com/Apex-Byte-Technologies/fictura_flutter), which wraps this SDK. It names itself with `FicturaOptions.wrapper`, hands over its Activity with `Fictura.Wrapper.attach`, and sends Dart errors through `Fictura.Wrapper.captureError`. Apps never call these themselves.
+
 ## Development
 
 ```bash

@@ -10,7 +10,7 @@ import java.util.UUID
 
 /** What this SDK calls itself on the wire. */
 object SdkInfo {
-    const val VERSION = "0.1.0"
+    const val VERSION = "0.2.0"
     const val LIB = "fictura-android"
     const val HEADER = "android/$VERSION"
     const val TELEMETRY_NAME = "fictura-android"

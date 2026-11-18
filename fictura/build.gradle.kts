@@ -5,7 +5,7 @@ plugins {
 }
 
 // The one place the SDK version lives: the published artifact and the version the SDK reports.
-val sdkVersion = "0.1.0"
+val sdkVersion = "0.2.0"
 
 android {
     namespace = "co.fictura.sdk"

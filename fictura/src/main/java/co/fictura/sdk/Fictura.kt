@@ -24,6 +24,29 @@ import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.TimeZone
 
+/**
+ * The SDK that wraps this one, such as `fictura_flutter`: its name and version.
+ * Set only by that SDK, so the backend can tell its apps apart.
+ */
+data class FicturaWrapper(val name: String, val version: String) {
+    /**
+     * `name/version`, sent as `x-fictura-wrapper`. Characters the backend's version
+     * check refuses are dropped, so a bad value never costs the whole header.
+     */
+    val header: String?
+        get() {
+            val n = name.lowercase().filter { it.isLetterOrDigit() || it == '_' || it == '-' }.take(20)
+            val v = version.filter { it.isLetterOrDigit() || it in ".+-" }.take(40)
+            return if (n.isEmpty() || v.isEmpty()) null else "$n/$v"
+        }
+
+    /** `$wrapper` and `$wrapper_version` on every event. */
+    internal fun properties(): JsonMap {
+        val h = header ?: return emptyMap()
+        return mapOf("\$wrapper" to Json.Str(h.substringBefore('/')), "\$wrapper_version" to Json.Str(h.substringAfter('/')))
+    }
+}
+
 /** Settings for [Fictura.configure]. Defaults match the React Native SDK. */
 class FicturaOptions {
     var apiBase: String = "https://api.fictura.co"
@@ -35,6 +58,8 @@ class FicturaOptions {
     var environment: String? = null
     var flushIntervalMs: Long = 4000
     var debug = false
+    /** Set by an SDK that wraps this one (`fictura_flutter`). Leave it null in app code. */
+    var wrapper: FicturaWrapper? = null
 }
 
 /**
@@ -56,6 +81,7 @@ object Fictura {
     private var currentActivity: WeakReference<Activity>? = null
     private var screen: Pair<String, Long>? = null
     private var appContext: Context? = null
+    private var lifecycle: Lifecycle? = null
 
     /** How paywalls buy (RevenueCat or Play Billing in your app; see the README). */
     @JvmStatic var purchaseController: PurchaseController? = null
@@ -75,7 +101,8 @@ object Fictura {
         val key = apiKey.trim()
         val dir = File(app.noBackupFilesDir, "co.fictura/" + Ids.sha256Hex(key).take(12))
         val store = FileStore(dir)
-        val c = Core(Api(options.apiBase, key), store, HttpTransport(), deviceId(app, store), everyEventProperties(app),
+        val c = Core(Api(options.apiBase, key, options.wrapper?.header), store, HttpTransport(), deviceId(app, store),
+            everyEventProperties(app) + (options.wrapper?.properties() ?: emptyMap()),
             flushIntervalMs = options.flushIntervalMs, appVersion = appVersion(app), country = { Locale.getDefault().country.takeIf { it.isNotEmpty() } })
         core = c
         val cfg = RemoteConfig(c) { Locale.getDefault().toLanguageTag() }
@@ -84,7 +111,8 @@ object Fictura {
         pr.controller = { purchaseController }
         pr.presenter = Presenter { req -> main.post { present(req) } }
         placements = pr
-        val er = ErrorReporter(c, options.release ?: appVersion(app)?.let { v -> appBuild(app)?.let { "$v+$it" } ?: v }, options.environment ?: "production")
+        val er = ErrorReporter(c, options.release ?: appVersion(app)?.let { v -> appBuild(app)?.let { "$v+$it" } ?: v }, options.environment ?: "production",
+            options.wrapper?.header)
         errors = er
         c.onEvent = { er.addBreadcrumb(it) }
         c.onConversion = { data -> main.post { onConversion?.invoke(data.mapValues { it.value.any }) } }
@@ -106,9 +134,11 @@ object Fictura {
             }
             store.setJson("app_version_v1", Json.obj("version" to v, "build" to b))
         }
-        app.registerActivityLifecycleCallbacks(Lifecycle())
+        val lc = Lifecycle()
+        lifecycle = lc
+        app.registerActivityLifecycleCallbacks(lc)
         pr.onLaunch(firstOpen)
-        log("configured ${SdkInfo.HEADER}, device ${c.deviceId}")
+        log("configured ${SdkInfo.HEADER}${options.wrapper?.header?.let { " (wrapped by $it)" } ?: ""}, device ${c.deviceId}")
     }
 
     /** `and-<ANDROID_ID>` like the React Native SDK, so an app rewritten from React Native keeps its users. */
@@ -277,6 +307,34 @@ object Fictura {
     @JvmStatic @JvmOverloads
     fun captureMessage(message: String, level: String = "error") { errors?.captureMessage(message, level) }
 
+    // ── Wrapping SDKs ───────────────────────────────────────────────────────
+
+    /** For SDKs that wrap this one, such as `fictura_flutter`. App code doesn't need these. */
+    object Wrapper {
+        /**
+         * The Activity that was already on screen when [configure] ran. A Flutter app
+         * configures from Dart, after its Activity started, so the SDK missed that start:
+         * without this there is no `app_open` for the launch, no `app_backgrounded`, and
+         * no Activity to show a paywall on. Ignored once the SDK has seen an Activity start.
+         */
+        @JvmStatic
+        fun attach(activity: Activity) {
+            main.post { if (!activity.isFinishing) lifecycle?.adopt(activity) }
+        }
+
+        /**
+         * Reports an error raised in the wrapper's own language (a Dart exception), with
+         * its own type, message and stack text. [runtime] names that language (`dart`),
+         * so the backend reads the stack's frames. [level]: info, warning, error, fatal.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun captureError(type: String, message: String?, stack: String?, handled: Boolean = true, level: String = "error",
+                         mechanism: String = "manual", runtime: String, properties: Map<String, Any?> = emptyMap()) {
+            errors?.captureForeign(type, message, stack, level, handled, mechanism, runtime, properties)
+        }
+    }
+
     internal fun log(s: String) { if (options.debug) android.util.Log.d("Fictura", s) }
 
     // ── Lifecycle, screens and taps ─────────────────────────────────────────
@@ -284,8 +342,23 @@ object Fictura {
     private class Lifecycle : Application.ActivityLifecycleCallbacks {
         private var started = 0
         private var backgroundedAt: Long? = null
+        private var seen = false
+
+        /** Counts an Activity that started before these callbacks were registered (see [Wrapper.attach]). */
+        fun adopt(a: Activity) {
+            if (seen || started > 0) return
+            seen = true
+            started = 1
+            if (options.captureLifecycle && !openLogged) {
+                openLogged = true
+                core?.track("app_open", properties = mapOf("from_background" to Json.Bool(false)))
+            }
+            onActivityResumed(a)
+        }
+
         override fun onActivityCreated(a: Activity, b: Bundle?) {}
         override fun onActivityStarted(a: Activity) {
+            seen = true
             if (started++ == 0) {
                 val c = core ?: return
                 if (backgroundedAt != null) {
@@ -306,6 +379,7 @@ object Fictura {
         }
         override fun onActivityPaused(a: Activity) {}
         override fun onActivityStopped(a: Activity) {
+            if (started == 0) return // an Activity that started before configure, never adopted
             if (--started == 0) {
                 backgroundedAt = System.currentTimeMillis()
                 if (options.captureLifecycle) core?.track("app_backgrounded")
@@ -361,7 +435,8 @@ object Fictura {
 }
 
 /** Errors for Issues: handled, uncaught (sent next launch), and ANRs and crashes from ApplicationExitInfo (API 30+). */
-class ErrorReporter(private val core: Core, private val release: String?, private val environment: String) {
+class ErrorReporter(private val core: Core, private val release: String?, private val environment: String,
+                    private val wrapper: String? = null) {
     private val pending = ArrayList<Json>()
     private val breadcrumbs = ArrayList<Json>()
     @Volatile private var sending = false
@@ -379,7 +454,8 @@ class ErrorReporter(private val core: Core, private val release: String?, privat
         val ids = core.ids()
         val e = linkedMapOf<String, Json>("event_id" to Json.Str(eventId), "exc_type" to Json.Str(excType.take(120)), "level" to Json.Str(level),
             "mechanism" to Json.Str(mechanism), "handled" to Json.Bool(handled), "platform" to Json.Str("android"), "environment" to Json.Str(environment),
-            "ts" to Json.Str(Iso.format(core.now())), "contexts" to Json.obj("app" to mapOf("sdk" to SdkInfo.HEADER), "os" to mapOf("name" to "Android", "version" to Build.VERSION.RELEASE)))
+            "ts" to Json.Str(Iso.format(core.now())), "contexts" to Json.obj("app" to listOfNotNull("sdk" to SdkInfo.HEADER, wrapper?.let { "wrapper" to it }).toMap(),
+                "os" to mapOf("name" to "Android", "version" to Build.VERSION.RELEASE)))
         release?.let { e["release"] = Json.Str(it) }
         message?.let { e["message"] = Json.Str(it.take(500)) }
         stack?.takeIf { it.isNotEmpty() }?.let { e["stack"] = Json.Str(it.take(64_000)) }
@@ -404,6 +480,21 @@ class ErrorReporter(private val core: Core, private val release: String?, privat
     }
 
     fun captureMessage(m: String, level: String) = enqueue(event("Message", m, null, level, "manual", true))
+
+    /**
+     * An error raised in a wrapping SDK's own language (a Dart exception from
+     * `fictura_flutter`): its type, message and stack text, which this SDK can't see.
+     * `contexts.runtime.name` tells the backend how to read the stack.
+     */
+    fun captureForeign(type: String, message: String?, stack: String?, level: String, handled: Boolean, mechanism: String,
+                       runtime: String, props: Map<String, Any?> = emptyMap()) {
+        val e = event(type.trim().ifEmpty { "Error" }, message, stack, level, mechanism.take(40), handled).toMutableMap()
+        val contexts = (e["contexts"] as? Json.Obj)?.v?.toMutableMap() ?: linkedMapOf()
+        contexts["runtime"] = Json.obj("name" to runtime.take(40))
+        e["contexts"] = Json.Obj(contexts)
+        if (props.isNotEmpty()) e["tags"] = Json.of(props)
+        enqueue(e)
+    }
 
     fun installUncaughtHandler() {
         val previous = Thread.getDefaultUncaughtExceptionHandler()

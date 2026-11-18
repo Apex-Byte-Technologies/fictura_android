@@ -84,13 +84,14 @@ class HttpTransport : Transport {
 }
 
 /** Builds requests to Fictura's API with the headers every call carries. */
-class Api(val base: String, val apiKey: String) {
+class Api(val base: String, val apiKey: String, val wrapper: String? = null) {
     fun request(path: String, method: String = "GET", query: Map<String, String?> = emptyMap(), body: String? = null,
                 deviceId: String? = null, accountId: String? = null): Request {
         val qs = query.filterValues { it != null }.toSortedMap().entries.joinToString("&") {
             "${URLEncoder.encode(it.key, "UTF-8")}=${URLEncoder.encode(it.value, "UTF-8")}"
         }
         val headers = linkedMapOf("Content-Type" to "application/json", "x-api-key" to apiKey, "x-fictura-sdk" to SdkInfo.HEADER)
+        wrapper?.let { headers["x-fictura-wrapper"] = it }
         deviceId?.let { headers["X-Device-ID"] = it }
         accountId?.let { headers["X-Account-ID"] = it }
         return Request(base.trimEnd('/') + "/" + path.trimStart('/') + (if (qs.isEmpty()) "" else "?$qs"), method, headers, body)
