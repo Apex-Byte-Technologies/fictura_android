@@ -1,0 +1,1224 @@
+{
+  "about": "Audience rule evaluation. Every case uses the shared `context` (occurrences are placement name → epoch ms list, oldest first). Cases with kind=compareVersions test the version comparator (null = not comparable). Version comparison applies only to fields device.app_version and device.sdk_version.",
+  "source": [
+    "src/placements/rules.ts:12-269"
+  ],
+  "generated_by": "contract/generate.mjs",
+  "context": {
+    "user": {
+      "plan": "pro",
+      "credits": 12,
+      "beta": true,
+      "beta_str": "true",
+      "nickname": "Zoë",
+      "empty": ""
+    },
+    "seed": 42,
+    "isLoggedIn": true,
+    "params": {
+      "source": "settings",
+      "count": 3,
+      "ratio": "0.5"
+    },
+    "eventName": "boost",
+    "device": {
+      "platform": "ios",
+      "app_version": "2.10.0",
+      "sdk_version": "0.27.0",
+      "locale": "en-US",
+      "local_hour": 21,
+      "is_tablet": false
+    },
+    "server": {
+      "country": "US",
+      "billing_state": "trial",
+      "attribution": {
+        "media_source": "tiktok",
+        "campaign": null
+      }
+    },
+    "now": 1791460800000,
+    "occurrences": {
+      "boost": [
+        1791280800000,
+        1791453600000,
+        1791459000000
+      ]
+    },
+    "installedAt": 1791100800000
+  },
+  "cases": [
+    {
+      "name": "null_rule_matches",
+      "input": {
+        "rule": null
+      },
+      "expected": true
+    },
+    {
+      "name": "empty_and_matches",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": []
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "empty_or_matches",
+      "input": {
+        "rule": {
+          "op": "or",
+          "conditions": []
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "bad_op_fails",
+      "input": {
+        "rule": {
+          "op": "xor",
+          "conditions": [
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "not_a_rule_fails",
+      "input": {
+        "rule": {
+          "op": "and"
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "eq_string",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "eq_case_sensitive",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "PRO"
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "neq",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.plan",
+              "operator": "neq",
+              "value": "free"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "eq_number_vs_numeric_string",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.credits",
+              "operator": "eq",
+              "value": "12"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "eq_bool_vs_string_true",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.beta",
+              "operator": "eq",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "eq_string_true_vs_bool",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.beta_str",
+              "operator": "eq",
+              "value": true
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "gt_number",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.credits",
+              "operator": "gt",
+              "value": 10
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "gt_numeric_string",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "params.ratio",
+              "operator": "gt",
+              "value": 0.25
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "lt_non_numeric_fails",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.plan",
+              "operator": "lt",
+              "value": 5
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "version_gte",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "device.app_version",
+              "operator": "gte",
+              "value": "2.9.5"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "version_lt_semver_not_lexical",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "device.app_version",
+              "operator": "lt",
+              "value": "2.9"
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "version_equal_missing_parts",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "device.sdk_version",
+              "operator": "eq",
+              "value": "0.27.0"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "contains",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "device.locale",
+              "operator": "contains",
+              "value": "en"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "not_contains",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "device.locale",
+              "operator": "not_contains",
+              "value": "de"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "contains_on_number_fails",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.credits",
+              "operator": "contains",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "in_list",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "server.country",
+              "operator": "in",
+              "value": [
+                "US",
+                "CA"
+              ]
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "not_in_list",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "server.country",
+              "operator": "not_in",
+              "value": [
+                "DE",
+                "FR"
+              ]
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "in_needs_array",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "server.country",
+              "operator": "in",
+              "value": "US"
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "is_set",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.plan",
+              "operator": "is_set"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "is_set_empty_string_counts_as_set",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.empty",
+              "operator": "is_set"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "not_set_missing",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.missing",
+              "operator": "not_set"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "eq_on_missing_fails",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.missing",
+              "operator": "eq",
+              "value": "x"
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "neq_on_missing_fails",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.missing",
+              "operator": "neq",
+              "value": "x"
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "is_true",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.beta",
+              "operator": "is_true"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "is_true_string",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.beta_str",
+              "operator": "is_true"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "is_false_on_true",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.beta",
+              "operator": "is_false"
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "seed_lt",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.seed",
+              "operator": "lt",
+              "value": 50
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "is_logged_in",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.is_logged_in",
+              "operator": "is_true"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "event_name",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "event_name",
+              "operator": "eq",
+              "value": "boost"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "server_billing_state",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "server.billing_state",
+              "operator": "eq",
+              "value": "trial"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "server_attribution_key",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "server.attribution.media_source",
+              "operator": "eq",
+              "value": "tiktok"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "server_attribution_null_is_missing",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "server.attribution.campaign",
+              "operator": "not_set"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "unknown_prefix_fails",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "app.version",
+              "operator": "eq",
+              "value": "2.10.0"
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "device_bool_false_is_present",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "device.is_tablet",
+              "operator": "is_false"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "computed_minutes_since",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "computed.minutes_since.boost",
+              "operator": "eq",
+              "value": 30
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "computed_hours_since_floor",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "computed.hours_since.boost",
+              "operator": "eq",
+              "value": 0
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "computed_placements_in_day",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "computed.placements_in_day.boost",
+              "operator": "eq",
+              "value": 2
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "computed_placements_in_week",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "computed.placements_in_week.boost",
+              "operator": "eq",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "computed_since_install",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "computed.placements_since_install.boost",
+              "operator": "eq",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "computed_never_triggered_missing",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "computed.days_since.other",
+              "operator": "not_set"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "computed_count_never_is_zero",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "computed.placements_in_hour.other",
+              "operator": "eq",
+              "value": 0
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "nested_or_inside_and",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "op": "and",
+              "conditions": [
+                {
+                  "field": "user.plan",
+                  "operator": "eq",
+                  "value": "pro"
+                }
+              ]
+            },
+            {
+              "op": "or",
+              "conditions": [
+                {
+                  "op": "and",
+                  "conditions": [
+                    {
+                      "field": "server.country",
+                      "operator": "eq",
+                      "value": "DE"
+                    }
+                  ]
+                },
+                {
+                  "op": "and",
+                  "conditions": [
+                    {
+                      "field": "device.local_hour",
+                      "operator": "gte",
+                      "value": 20
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "depth_3_ok",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "op": "and",
+              "conditions": [
+                {
+                  "op": "and",
+                  "conditions": [
+                    {
+                      "field": "user.plan",
+                      "operator": "eq",
+                      "value": "pro"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "depth_4_fails",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "op": "and",
+              "conditions": [
+                {
+                  "op": "and",
+                  "conditions": [
+                    {
+                      "op": "and",
+                      "conditions": [
+                        {
+                          "field": "user.plan",
+                          "operator": "eq",
+                          "value": "pro"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "26_conditions_fails",
+      "input": {
+        "rule": {
+          "op": "or",
+          "conditions": [
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "25_conditions_ok",
+      "input": {
+        "rule": {
+          "op": "or",
+          "conditions": [
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            },
+            {
+              "field": "user.plan",
+              "operator": "eq",
+              "value": "pro"
+            }
+          ]
+        }
+      },
+      "expected": true
+    },
+    {
+      "name": "unknown_operator_fails",
+      "input": {
+        "rule": {
+          "op": "and",
+          "conditions": [
+            {
+              "field": "user.plan",
+              "operator": "startsWith",
+              "value": "p"
+            }
+          ]
+        }
+      },
+      "expected": false
+    },
+    {
+      "name": "compareVersions(\"1.10.0\",\"1.9.2\")",
+      "input": {
+        "a": "1.10.0",
+        "b": "1.9.2"
+      },
+      "expected": 1,
+      "kind": "compareVersions"
+    },
+    {
+      "name": "compareVersions(\"2.0\",\"2.0.0\")",
+      "input": {
+        "a": "2.0",
+        "b": "2.0.0"
+      },
+      "expected": 0,
+      "kind": "compareVersions"
+    },
+    {
+      "name": "compareVersions(\"v3.1.0\",\"3.1\")",
+      "input": {
+        "a": "v3.1.0",
+        "b": "3.1"
+      },
+      "expected": 0,
+      "kind": "compareVersions"
+    },
+    {
+      "name": "compareVersions(\"1.2.3-beta.1\",\"1.2.3\")",
+      "input": {
+        "a": "1.2.3-beta.1",
+        "b": "1.2.3"
+      },
+      "expected": 0,
+      "kind": "compareVersions"
+    },
+    {
+      "name": "compareVersions(\"1.2.3+45\",\"1.2.4\")",
+      "input": {
+        "a": "1.2.3+45",
+        "b": "1.2.4"
+      },
+      "expected": -1,
+      "kind": "compareVersions"
+    },
+    {
+      "name": "compareVersions(\"1.2.x\",\"1.2.0\")",
+      "input": {
+        "a": "1.2.x",
+        "b": "1.2.0"
+      },
+      "expected": null,
+      "kind": "compareVersions"
+    },
+    {
+      "name": "compareVersions(10,\"9.9\")",
+      "input": {
+        "a": 10,
+        "b": "9.9"
+      },
+      "expected": 1,
+      "kind": "compareVersions"
+    },
+    {
+      "name": "compareVersions(\"\",\"1.0\")",
+      "input": {
+        "a": "",
+        "b": "1.0"
+      },
+      "expected": null,
+      "kind": "compareVersions"
+    }
+  ]
+}

@@ -1,0 +1,2582 @@
+{
+  "about": "resolvePlacement (pure). input.random is the value the device's Math.random would return for the one draw. expected.paywall (omitted) is config.campaign_paywalls[paywall_id] when paywall_present. Order: override → placement → enabled → audiences top-down (schedule, entitlement, rule, frequency) → default_campaign → variant (stored → assignments_v2 → weighted random).",
+  "source": [
+    "src/placements/engine.ts:109-274",
+    "src/placements/occurrences.ts:17-61",
+    "src/placements/rules.ts"
+  ],
+  "generated_by": "contract/generate.mjs",
+  "cases": [
+    {
+      "name": "match_100pct_treatment",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": null,
+        "variant_id": "aud_1_v1",
+        "paywall_id": "pw_a",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "aud_1_v1",
+          "experiment_id": null,
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "placement_not_found",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "nope",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "placement_not_found",
+        "source": null,
+        "campaign_id": null,
+        "audience_id": null,
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": null,
+        "unmatched": {},
+        "assignment": null,
+        "skipReason": "placement_not_found",
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "placement_paused",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": false,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "placement_paused",
+        "source": null,
+        "campaign_id": "camp_1",
+        "audience_id": null,
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": null,
+        "unmatched": {},
+        "assignment": null,
+        "skipReason": "placement_paused",
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "override_active_wins",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null,
+          "override": {
+            "paywall_id": "pw_b",
+            "expires_at": "2026-10-09T00:00:00Z"
+          }
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "override",
+        "campaign_id": null,
+        "audience_id": null,
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": "pw_b",
+        "unmatched": {},
+        "assignment": null,
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "override_expired_ignored",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null,
+          "override": {
+            "paywall_id": "pw_b",
+            "expires_at": "2026-10-08T11:59:59Z"
+          }
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": null,
+        "variant_id": "aud_1_v1",
+        "paywall_id": "pw_a",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "aud_1_v1",
+          "experiment_id": null,
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "override_paywall_missing_ignored",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null,
+          "override": {
+            "paywall_id": "pw_zzz",
+            "expires_at": "2026-10-09T00:00:00Z"
+          }
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": null,
+        "variant_id": "aud_1_v1",
+        "paywall_id": "pw_a",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "aud_1_v1",
+          "experiment_id": null,
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "subscribed_vs_unsubscribed_filter",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": true,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "no_audience_match",
+        "source": null,
+        "campaign_id": "camp_1",
+        "audience_id": null,
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": null,
+        "unmatched": {
+          "aud_1": "entitlement"
+        },
+        "assignment": null,
+        "skipReason": "user_is_subscribed",
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "subscribed_filter_all",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "all",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": true,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": null,
+        "variant_id": "aud_1_v1",
+        "paywall_id": "pw_a",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "aud_1_v1",
+          "experiment_id": null,
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "subscribed_filter_subscribed",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "subscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": true,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": null,
+        "variant_id": "aud_1_v1",
+        "paywall_id": "pw_a",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "aud_1_v1",
+          "experiment_id": null,
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "unknown_filter_fails_closed",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "trialing",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "no_audience_match",
+        "source": null,
+        "campaign_id": "camp_1",
+        "audience_id": null,
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": null,
+        "unmatched": {
+          "aud_1": "entitlement"
+        },
+        "assignment": null,
+        "skipReason": "no_audience_match",
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "missing_filter_means_unsubscribed",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": true,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "no_audience_match",
+        "source": null,
+        "campaign_id": "camp_1",
+        "audience_id": null,
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": null,
+        "unmatched": {
+          "aud_1": "entitlement"
+        },
+        "assignment": null,
+        "skipReason": "user_is_subscribed",
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "schedule_not_started",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ],
+                  "start_at": "2026-10-08T12:00:01Z"
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "no_audience_match",
+        "source": null,
+        "campaign_id": "camp_1",
+        "audience_id": null,
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": null,
+        "unmatched": {
+          "aud_1": "schedule"
+        },
+        "assignment": null,
+        "skipReason": "no_audience_match",
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "schedule_started_exactly_now",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ],
+                  "start_at": "2026-10-08T12:00:00Z"
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": null,
+        "variant_id": "aud_1_v1",
+        "paywall_id": "pw_a",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "aud_1_v1",
+          "experiment_id": null,
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "schedule_ended_exactly_now",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ],
+                  "end_at": "2026-10-08T12:00:00Z"
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "no_audience_match",
+        "source": null,
+        "campaign_id": "camp_1",
+        "audience_id": null,
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": null,
+        "unmatched": {
+          "aud_1": "schedule"
+        },
+        "assignment": null,
+        "skipReason": "no_audience_match",
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "schedule_unparseable_fails",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ],
+                  "start_at": "soon"
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "no_audience_match",
+        "source": null,
+        "campaign_id": "camp_1",
+        "audience_id": null,
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": null,
+        "unmatched": {
+          "aud_1": "schedule"
+        },
+        "assignment": null,
+        "skipReason": "no_audience_match",
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "rule_on_seed_first_audience_misses_second_matches",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_low",
+                  "rule": {
+                    "op": "and",
+                    "conditions": [
+                      {
+                        "field": "user.seed",
+                        "operator": "lt",
+                        "value": 50
+                      }
+                    ]
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_low_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                },
+                {
+                  "id": "aud_high",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_high_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_b",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 70,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_high",
+        "experiment_id": null,
+        "variant_id": "aud_high_v1",
+        "paywall_id": "pw_b",
+        "unmatched": {
+          "aud_low": "rule"
+        },
+        "assignment": {
+          "audience_id": "aud_high",
+          "variant_id": "aud_high_v1",
+          "experiment_id": null,
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "frequency_limit_reached",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": {
+                    "occurrences": 2,
+                    "interval_minutes": 60
+                  },
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {
+          "a:aud_1": [
+            1791457800000,
+            1791460200000
+          ]
+        },
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "no_audience_match",
+        "source": null,
+        "campaign_id": "camp_1",
+        "audience_id": null,
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": null,
+        "unmatched": {
+          "aud_1": "limit"
+        },
+        "assignment": null,
+        "skipReason": "no_audience_match",
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "frequency_limit_window_passed",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": {
+                    "occurrences": 2,
+                    "interval_minutes": 60
+                  },
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {
+          "a:aud_1": [
+            1791457200000,
+            1791460200000
+          ]
+        },
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": null,
+        "variant_id": "aud_1_v1",
+        "paywall_id": "pw_a",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "aud_1_v1",
+          "experiment_id": null,
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "frequency_limit_ever",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": {
+                    "occurrences": 1,
+                    "interval_minutes": null
+                  },
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {
+          "a:aud_1": [
+            1756900800000
+          ]
+        },
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "no_audience_match",
+        "source": null,
+        "campaign_id": "camp_1",
+        "audience_id": null,
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": null,
+        "unmatched": {
+          "aud_1": "limit"
+        },
+        "assignment": null,
+        "skipReason": "no_audience_match",
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "default_campaign_fallback",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": [
+                      {
+                        "field": "user.plan",
+                        "operator": "eq",
+                        "value": "pro"
+                      }
+                    ]
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": {
+            "audiences": [
+              {
+                "id": "aud_default",
+                "rule": {
+                  "op": "and",
+                  "conditions": []
+                },
+                "entitlement_filter": "unsubscribed",
+                "frequency_limit": null,
+                "experiment_id": null,
+                "variants": [
+                  {
+                    "id": "aud_default_v1",
+                    "type": "treatment",
+                    "paywall_id": "pw_b",
+                    "percentage": 100
+                  }
+                ]
+              }
+            ],
+            "campaign_id": "camp_default"
+          }
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "default_campaign",
+        "campaign_id": "camp_default",
+        "audience_id": "aud_default",
+        "experiment_id": null,
+        "variant_id": "aud_default_v1",
+        "paywall_id": "pw_b",
+        "unmatched": {
+          "aud_1": "rule"
+        },
+        "assignment": {
+          "audience_id": "aud_default",
+          "variant_id": "aud_default_v1",
+          "experiment_id": null,
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "fifty_fifty_random_0.49",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": "exp_1",
+                  "variants": [
+                    {
+                      "id": "v_a",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 50
+                    },
+                    {
+                      "id": "v_b",
+                      "type": "treatment",
+                      "paywall_id": "pw_b",
+                      "percentage": 50
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.49
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": "exp_1",
+        "variant_id": "v_a",
+        "paywall_id": "pw_a",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "v_a",
+          "experiment_id": "exp_1",
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "fifty_fifty_random_0.5",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": "exp_1",
+                  "variants": [
+                    {
+                      "id": "v_a",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 50
+                    },
+                    {
+                      "id": "v_b",
+                      "type": "treatment",
+                      "paywall_id": "pw_b",
+                      "percentage": 50
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": "exp_1",
+        "variant_id": "v_b",
+        "paywall_id": "pw_b",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "v_b",
+          "experiment_id": "exp_1",
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "stored_assignment_wins_over_random",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": "exp_1",
+                  "variants": [
+                    {
+                      "id": "v_a",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 50
+                    },
+                    {
+                      "id": "v_b",
+                      "type": "treatment",
+                      "paywall_id": "pw_b",
+                      "percentage": 50
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {
+          "aud_1": {
+            "variant_id": "v_b"
+          }
+        },
+        "random": 0.01
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": "exp_1",
+        "variant_id": "v_b",
+        "paywall_id": "pw_b",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "v_b",
+          "experiment_id": "exp_1",
+          "placement": "boost",
+          "from": "stored"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "stored_assignment_unknown_variant_falls_to_server",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": "exp_1",
+                  "variants": [
+                    {
+                      "id": "v_a",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 50
+                    },
+                    {
+                      "id": "v_b",
+                      "type": "treatment",
+                      "paywall_id": "pw_b",
+                      "percentage": 50
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null,
+          "assignments_v2": [
+            {
+              "audience_id": "aud_1",
+              "variant_id": "v_b"
+            }
+          ]
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {
+          "aud_1": {
+            "variant_id": "v_gone"
+          }
+        },
+        "random": 0.01
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": "exp_1",
+        "variant_id": "v_b",
+        "paywall_id": "pw_b",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "v_b",
+          "experiment_id": "exp_1",
+          "placement": "boost",
+          "from": "server"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    },
+    {
+      "name": "holdout_picked",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": "exp_1",
+                  "variants": [
+                    {
+                      "id": "v_a",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 90
+                    },
+                    {
+                      "id": "v_h",
+                      "type": "holdout",
+                      "paywall_id": null,
+                      "percentage": 10
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.95
+      },
+      "expected": {
+        "type": "holdout",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": "exp_1",
+        "variant_id": "v_h",
+        "paywall_id": null,
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "v_h",
+          "experiment_id": "exp_1",
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": "holdout",
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "variant_paywall_not_shipped",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "v_x",
+                      "type": "treatment",
+                      "paywall_id": "pw_missing",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall_not_available",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": null,
+        "variant_id": "v_x",
+        "paywall_id": "pw_missing",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "v_x",
+          "experiment_id": null,
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "audience_without_variants",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": []
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": []
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {},
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {},
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall_not_available",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": null,
+        "variant_id": null,
+        "paywall_id": null,
+        "unmatched": {},
+        "assignment": null,
+        "skipReason": null,
+        "paywall_present": false
+      }
+    },
+    {
+      "name": "rule_on_params_and_device",
+      "input": {
+        "config": {
+          "placements": {
+            "boost": {
+              "enabled": true,
+              "campaign_id": "camp_1",
+              "audiences": [
+                {
+                  "id": "aud_1",
+                  "rule": {
+                    "op": "and",
+                    "conditions": [
+                      {
+                        "field": "params.source",
+                        "operator": "eq",
+                        "value": "settings"
+                      },
+                      {
+                        "field": "device.app_version",
+                        "operator": "gte",
+                        "value": "2.9.5"
+                      },
+                      {
+                        "op": "or",
+                        "conditions": [
+                          {
+                            "field": "params.count",
+                            "operator": "gt",
+                            "value": "2"
+                          },
+                          {
+                            "field": "device.platform",
+                            "operator": "eq",
+                            "value": "android"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "entitlement_filter": "unsubscribed",
+                  "frequency_limit": null,
+                  "experiment_id": null,
+                  "variants": [
+                    {
+                      "id": "aud_1_v1",
+                      "type": "treatment",
+                      "paywall_id": "pw_a",
+                      "percentage": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "campaign_paywalls": {
+            "pw_a": {
+              "id": "pw_a",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            },
+            "pw_b": {
+              "id": "pw_b",
+              "version": 1,
+              "config": {
+                "schema_version": 5,
+                "template": "webview",
+                "html": ""
+              }
+            }
+          },
+          "default_campaign": null
+        },
+        "placement": "boost",
+        "params": {
+          "source": "settings",
+          "count": 3
+        },
+        "now": 1791460800000,
+        "subscribed": false,
+        "context": {
+          "user": {},
+          "seed": 10,
+          "isLoggedIn": false,
+          "device": {
+            "platform": "ios",
+            "app_version": "2.10.0"
+          },
+          "server": {},
+          "installedAt": 1791460799000
+        },
+        "occurrences": {},
+        "assignments": {},
+        "random": 0.5
+      },
+      "expected": {
+        "type": "paywall",
+        "source": "campaign",
+        "campaign_id": "camp_1",
+        "audience_id": "aud_1",
+        "experiment_id": null,
+        "variant_id": "aud_1_v1",
+        "paywall_id": "pw_a",
+        "unmatched": {},
+        "assignment": {
+          "audience_id": "aud_1",
+          "variant_id": "aud_1_v1",
+          "experiment_id": null,
+          "placement": "boost",
+          "from": "random"
+        },
+        "skipReason": null,
+        "paywall_present": true
+      }
+    }
+  ]
+}
