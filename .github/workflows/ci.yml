@@ -18,8 +18,9 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - uses: android-actions/setup-android@v3
       - name: Unit tests
         run: ./gradlew :fictura:testDebugUnitTest
       - name: Build the library and the demo
         run: ./gradlew :fictura:assembleRelease :demo:assembleDebug
+      - name: The Maven Central files build (AAR, POM, sources, javadoc)
+        run: ./gradlew :fictura:publishToMavenLocal

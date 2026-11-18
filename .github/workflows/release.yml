@@ -1,0 +1,36 @@
+name: Release
+
+# Push a tag like v0.1.0 to upload that version to Maven Central.
+# The upload waits on the Central Portal (Deployments page) until someone clicks Publish.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Upload to Maven Central
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Tag matches the SDK version
+        run: |
+          want="${GITHUB_REF_NAME#v}"
+          have=$(sed -n 's/^val sdkVersion = "\(.*\)"$/\1/p' fictura/build.gradle.kts)
+          if [ "$want" != "$have" ]; then echo "Tag $GITHUB_REF_NAME does not match sdkVersion $have"; exit 1; fi
+      - name: Unit tests
+        run: ./gradlew :fictura:testDebugUnitTest
+      - name: Upload
+        run: ./gradlew :fictura:publishToMavenCentral --no-configuration-cache
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
